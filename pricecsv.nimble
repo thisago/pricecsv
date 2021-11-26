@@ -3,7 +3,7 @@
 version       = "0.1.0"
 author        = "Luciano Lorenzo"
 description   = "Easily calculate the total of all products in csv"
-license       = "MIT"
+license       = "GPL-3"
 srcDir        = "src"
 
 bin = @["pricecsv"]
