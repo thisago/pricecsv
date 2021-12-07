@@ -1,8 +1,11 @@
+## CSV products total calculator
+
 import std/[
   parsecsv,
-  tables
 ]
 
+from std/tables import Table, `[]`, `[]=`, hasKey
+from std/strformat import fmt
 from std/streams import newFileStream
 from std/strutils import parseFloat, parseInt
 from std/strformat import `&`
@@ -20,13 +23,18 @@ proc getItems(file: string): seq[Item] =
   while p.readRow():
     var item: Item
     for col in p.headers:
-      item[col] = p.rowEntry col
+      try:
+        item[col] = p.rowEntry col
+      except:
+        quit fmt"No value for `{col}` in row {result.len + 1}"
     result.add item
   close p
 
 proc main(files: seq[string]; nameCol = "name"; quantityCol = "quantity";
           priceCol = "price") =
   ## Calculates the total price of prices csv
+  ##
+  ## `quantity` col is optional
   if files.len == 0:
     quit "Please provide at least 1 file"
 
@@ -46,8 +54,8 @@ proc main(files: seq[string]; nameCol = "name"; quantityCol = "quantity";
       subtotal = price * float qnt
     echo &"{int qnt}\t{price}\t{subtotal}\t{item[nameCol]}"
     total += subtotal
-
   echo &"\lTotal: {total}"
+
 
 when isMainModule:
   import pkg/cligen
