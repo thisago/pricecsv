@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.4.0 (12/10/2021)
+
+- Automatically join products with same name
+
+---
+
 ## Version 0.3.0 (12/07/2021)
 
 - Added a quit with a error message if col is missing
