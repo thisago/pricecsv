@@ -6,8 +6,9 @@ import std/terminal
 from std/tables import Table, `[]`, `[]=`, hasKey
 from std/strformat import fmt
 from std/streams import newFileStream
-from std/strutils import parseFloat, parseInt
+from std/strutils import parseFloat, parseInt, toLowerAscii
 from std/strformat import `&`
+from std/algorithm import sort
 
 type Item = Table[string, string]
 
@@ -29,14 +30,12 @@ proc getItems(file: string): seq[Item] =
     result.add item
   close p
 
-func has(items: seq[Item]; item: Item; nameCol: string): bool =
+func has(items: seq[Item]; item: Item; nameCol, priceCol: string): bool =
   ## Check if the seq have a item with same name
   result = false
   for it in items:
-    if it[nameCol] == item[nameCol]:
+    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol]:
       return true
-
-import std/[json, jsonutils]
 
 proc addItem(items: var seq[Item]; item: Item; nameCol, quantityCol: string) =
   ## Increments the quantity of a item
@@ -47,17 +46,20 @@ proc addItem(items: var seq[Item]; item: Item; nameCol, quantityCol: string) =
       else:
         it[quantityCol] = "2"
 
-proc dedup(items: var seq[Item]; quantityCol, nameCol: string) =
+proc dedup(items: var seq[Item]; quantityCol, nameCol, priceCol: string) =
   var newItems: type items
   for item in items:
-    if newItems.has(item, nameCol):
+    if newItems.has(item, nameCol, priceCol):
       newItems.addItem(item, nameCol, quantityCol)
     else:
       newItems.add item
   items = newItems
 
-proc main(files: seq[string]; nameCol = "name"; quantityCol = "quantity";
-          priceCol = "price"; organize = true) =
+proc main(
+  files: seq[string];
+  nameCol = "name"; quantityCol = "quantity"; priceCol = "price";
+  dedup = true; sort = true; colors = true
+) =
   ## Calculates the total price of prices csv
   ##
   ## `quantity` col is optional
@@ -69,11 +71,25 @@ proc main(files: seq[string]; nameCol = "name"; quantityCol = "quantity";
     for item in getItems file:
       items.add item
 
-  if organize:
-    dedup(items, quantityCol, nameCol)
+  if dedup:
+    dedup(items, quantityCol, nameCol, priceCol)
+  if sort:
+    items.sort(proc (x, y: Item): int =
+      cmp(x[nameCol].toLowerAscii, y[nameCol].toLowerAscii))
 
   var total: float
-  echo "Qnt\tPrice\tSubtotal\tName\l"
+
+  proc printRow(
+    qnt, price, subtotal, name: string;
+    fg = [fgWhite, fgYellow, fgGreen, fgWhite]
+  ) =
+    if colors:
+      styledEcho(fg[0], qnt, "\t", fg[1], price,
+                             "\t", fg[2], subtotal,
+                             "\t", fg[3], name)
+    else:
+      echo(qnt, "\t", price, "\t", subtotal, "\t", name)
+  printRow("Qnt", "Price", "Subtotal", "Name", [fgCyan, fgCyan, fgCyan, fgCyan])
   for item in items:
     var qnt = 1
     if item.hasKey quantityCol:
@@ -81,9 +97,9 @@ proc main(files: seq[string]; nameCol = "name"; quantityCol = "quantity";
     let
       price = parseFloat item[priceCol]
       subtotal = price * float qnt
-    echo &"{int qnt}\t{price}\t{subtotal}\t\t{item[nameCol]}"
+    printRow($qnt, $price, $subtotal, "\t" & item[nameCol])
     total += subtotal
-  echo &"\lTotal: {total}"
+  styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
 
 
 when isMainModule:

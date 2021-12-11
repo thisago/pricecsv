@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.5.0 (12/11/2021)
+
+- Fixed: Not join products with same name but different price
+- Added optional name sorting
+- Fixed: License name in nimble file
+- Added optional colors
+
+---
+
 ## Version 0.4.0 (12/10/2021)
 
 - Automatically join products with same name
