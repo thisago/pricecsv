@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.1 (12/16/2021)
+
+- Fixed crash when quantity is blank string
+
+---
+
 ## Version 0.5.0 (12/11/2021)
 
 - Fixed: Not join products with same name but different price

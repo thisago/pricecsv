@@ -6,11 +6,19 @@ import std/terminal
 from std/tables import Table, `[]`, `[]=`, hasKey
 from std/strformat import fmt
 from std/streams import newFileStream
-from std/strutils import parseFloat, parseInt, toLowerAscii
-from std/strformat import `&`
+from std/strutils import parseFloat, toLowerAscii
+# from std/strformat import `&`
 from std/algorithm import sort
 
 type Item = Table[string, string]
+
+proc parseInt(str: string; default = 1): int =
+  ## Try parse the string as integer, if not succeed, return default
+  result = default
+  try:
+    result = strutils.parseInt str
+  except:
+    discard
 
 proc getItems(file: string): seq[Item] =
   var s = file.newFileStream fmRead
