@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.2 (12/16/2021)
+
+- Added filename in error when reading csv rows
+
+---
+
 ## Version 0.5.1 (12/16/2021)
 
 - Fixed crash when quantity is blank string

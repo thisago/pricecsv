@@ -34,7 +34,7 @@ proc getItems(file: string): seq[Item] =
       try:
         item[col] = p.rowEntry col
       except:
-        quit fmt"No value for `{col}` in row {result.len + 1}"
+        quit fmt"No value for `{col}` in row {result.len + 1} in file `{file}`"
     result.add item
   close p
 
