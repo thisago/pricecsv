@@ -105,7 +105,7 @@ proc main(
     let
       price = parseFloat item[priceCol]
       subtotal = price * float qnt
-    printRow($qnt, fmt"{price:>9.2f}", fmt"{subtotal:>9.2f}", "\t" & item[nameCol])
+    printRow($qnt, fmt"{price:2.2f}", fmt"{subtotal:2.2f}", "\t" & item[nameCol])
     total += subtotal
   styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
 
