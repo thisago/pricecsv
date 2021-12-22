@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.5.3 (12/22/2021)
+
+- Formatted numbers with just two numbers after dot
+
+---
+
 ## Version 0.5.2 (12/16/2021)
 
 - Added filename in error when reading csv rows
