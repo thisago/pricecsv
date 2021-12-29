@@ -63,9 +63,22 @@ proc dedup(items: var seq[Item]; quantityCol, nameCol, priceCol: string) =
       newItems.add item
   items = newItems
 
+proc discount(price: float; discount: string): float =
+  result = price
+  if discount.len > 0:
+    try:
+      if discount[^1] == '%':
+        let percentage = parseFloat discount[0..^2]
+        result = price - (price / 100) * percentage
+      else:
+        result = price - parseFloat discount
+    except:
+      quit fmt"Error applying discount '{discount}'"
+
 proc main(
   files: seq[string];
   nameCol = "name"; quantityCol = "quantity"; priceCol = "price";
+  discountCol = "discount";
   dedup = true; sort = true; colors = true
 ) =
   ## Calculates the total price of prices csv
@@ -100,15 +113,22 @@ proc main(
   printRow("Qnt", "Price", "Subtotal", "Name", [fgCyan, fgCyan, fgCyan, fgCyan])
   for item in items:
     var qnt = 1
+
     if item.hasKey quantityCol:
       qnt = parseInt item[quantityCol]
-    let
+
+    let name = item[nameCol]
+    var price = 0.0
+    try:
       price = parseFloat item[priceCol]
-      subtotal = price * float qnt
-    printRow($qnt, fmt"{price:2.2f}", fmt"{subtotal:2.2f}", "\t" & item[nameCol])
+    except:
+      discard
+    if item.hasKey discountCol:
+      price = price.discount item[discountCol]
+    let subtotal = price * float qnt
+    printRow($qnt, fmt"{price:2.2f}", fmt"{subtotal:2.2f}", "\t" & name)
     total += subtotal
   styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
-
 
 when isMainModule:
   import pkg/cligen

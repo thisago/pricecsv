@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.6.1 (12/29/2021)
+
+- Default price is 0
+
+---
+
+## Version 0.6.0 (12/27/2021)
+
+- Added `discount` feature. Supported discount as value (i.e: `10`) and as percentage (i.e: `10%`)
+
+---
+
 ## Version 0.5.3 (12/22/2021)
 
 - Formatted numbers with just two numbers after dot
