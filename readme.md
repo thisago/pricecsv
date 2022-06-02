@@ -26,7 +26,11 @@ Options:
 
 ### Example
 ```
-pricecsv examples/items.csv
+$ pricecsv examples/items.csv
+```
+or multiple
+```
+$ pricecsv examples/*.csv
 ```
 
 ### Fields
