@@ -142,7 +142,7 @@ proc main(
     printRow($qnt, fmt"{price:2.2f}", discount & "\t", subtotal & "\t", name)
     total += subtotalNum
   if excel:
-    echo fmt"\lTotal,=sum(C2:C{items.len + 1})"
+    echo "\l" & fmt"Total,=sum(C2:C{items.len + 1})"
   else:
     if colors:
       styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
