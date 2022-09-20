@@ -9,4 +9,4 @@ Qnt,Price,Subtotal,Name
 1,13.95,=A9*B9,Pineapple juice
 4,1.00,=A10*B10,Potato chips
 
-Total,=sum(C2:C10)
+Total,=sum(C2:C10),,,
