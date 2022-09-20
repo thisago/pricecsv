@@ -1,13 +1,17 @@
-name,price
-Canned corn,2
-Baking soda,3
-Potato chips,1
-Canned corn,2
-Baking soda,3
-Potato chips,1
-Canned corn,2
-Baking soda,3
-Potato chips,1
-Canned corn,2
-Baking soda,3
-Potato chips,1
+quantity,name,price,discount
+1,Canned corn,2,
+1,Baking soda,3,2
+1,Potato chips,1,
+1,Canned corn,2,10%
+1,Baking soda,3,
+1,Potato chips,1,
+1,Canned beans,2,
+1,Baking soda,3,
+1,Potato chips,1,
+1,Canned corn,2,
+1,Baking soda,3,
+1,Pineapple juice,15,5%
+1,Pineapple juice,15,5%
+1,Pineapple juice,15,6%
+1,Pineapple juice,15,7%
+1,Potato chips,1,

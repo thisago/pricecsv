@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.7.0 (Sep 20, 2022)
+
+- Added excel output
+- Fixed dedup with discounts
+
+---
+
 ## Version 0.6.1 (12/29/2021)
 
 - Default price is 0

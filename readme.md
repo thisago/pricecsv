@@ -22,18 +22,29 @@ Options:
   --dedup              bool    true        set dedup
   -s, --sort           bool    true        set sort
   -c, --colors         bool    true        set colors
+  -e, --excel          bool    false       set excel
 ```
 
 ### Example
+
 ```
 $ pricecsv examples/items.csv
 ```
+
 or multiple
+
 ```
 $ pricecsv examples/*.csv
 ```
 
+You can even select output format to Excel
+
+```
+$ pricecsv examples/*.csv -e
+```
+
 ### Fields
+
 Every field can be changed, but the default is:
 
 - `name`: The product name. **Required**

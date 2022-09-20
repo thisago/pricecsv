@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.6.1"
+version       = "0.7.0"
 author        = "Thiago Navarro"
 description   = "Easily calculate the total of all products in csv"
 license       = "gpl-3.0"

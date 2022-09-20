@@ -6,8 +6,7 @@ import std/terminal
 from std/tables import Table, `[]`, `[]=`, hasKey
 from std/strformat import fmt
 from std/streams import newFileStream
-from std/strutils import parseFloat, toLowerAscii
-# from std/strformat import `&`
+from std/strutils import parseFloat, toLowerAscii, replace
 from std/algorithm import sort
 
 type Item = Table[string, string]
@@ -38,27 +37,27 @@ proc getItems(file: string): seq[Item] =
     result.add item
   close p
 
-func has(items: seq[Item]; item: Item; nameCol, priceCol: string): bool =
+func has(items: seq[Item]; item: Item; nameCol, priceCol, discountCol: string): bool =
   ## Check if the seq have a item with same name
   result = false
   for it in items:
-    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol]:
+    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it[discountCol] == item[discountCol]:
       return true
 
-proc addItem(items: var seq[Item]; item: Item; nameCol, quantityCol: string) =
+proc addItem(items: var seq[Item]; item: Item; nameCol, quantityCol, priceCol, discountCol: string) =
   ## Increments the quantity of a item
   for it in items.mitems:
-    if it[nameCol] == item[nameCol]:
+    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it[discountCol] == item[discountCol]:
       if it.hasKey quantityCol:
         it[quantityCol] = $(1 + parseInt it[quantityCol])
       else:
         it[quantityCol] = "2"
 
-proc dedup(items: var seq[Item]; quantityCol, nameCol, priceCol: string) =
+proc dedup(items: var seq[Item]; quantityCol, nameCol, priceCol, discountCol: string) =
   var newItems: type items
   for item in items:
-    if newItems.has(item, nameCol, priceCol):
-      newItems.addItem(item, nameCol, quantityCol)
+    if newItems.has(item, nameCol, priceCol, discountCol):
+      newItems.addItem(item, nameCol, quantityCol, priceCol, discountCol)
     else:
       newItems.add item
   items = newItems
@@ -79,7 +78,7 @@ proc main(
   files: seq[string];
   nameCol = "name"; quantityCol = "quantity"; priceCol = "price";
   discountCol = "discount";
-  dedup = true; sort = true; colors = true
+  dedup = true; sort = true; colors = true, excel = false
 ) =
   ## Calculates the total price of prices csv
   ##
@@ -93,7 +92,7 @@ proc main(
       items.add item
 
   if dedup:
-    dedup(items, quantityCol, nameCol, priceCol)
+    dedup(items, quantityCol, nameCol, priceCol, discountCol)
   if sort:
     items.sort(proc (x, y: Item): int =
       cmp(x[nameCol].toLowerAscii, y[nameCol].toLowerAscii))
@@ -101,34 +100,54 @@ proc main(
   var total: float
 
   proc printRow(
-    qnt, price, subtotal, name: string;
-    fg = [fgWhite, fgYellow, fgGreen, fgWhite]
+    qnt, price, discount, subtotal, name: string;
+    fg = [fgWhite, fgYellow, fgWhite, fgGreen, fgWhite]
   ) =
-    if colors:
+    if excel:
+      template noTab(s: string): untyped =
+        s.replace("\t", "")
+      echo(qnt.noTab, ",", price.noTab, ",", subtotal.noTab, ",", name.noTab)
+    elif colors:
       styledEcho(fg[0], qnt, "\t", fg[1], price,
-                             "\t", fg[2], subtotal,
-                             "\t", fg[3], name)
+                             "\t", fg[2], discount,
+                             "\t", fg[3], subtotal,
+                             "\t", fg[4], name)
     else:
-      echo(qnt, "\t", price, "\t", subtotal, "\t", name)
-  printRow("Qnt", "Price", "Subtotal", "Name", [fgCyan, fgCyan, fgCyan, fgCyan])
-  for item in items:
+      echo(qnt, "\t", price, "\t", discount, "\t", subtotal, "\t", name)
+  printRow("Qnt", "Price", "Discount", "Subtotal", "Name", [fgCyan, fgCyan, fgCyan, fgCyan, fgCyan])
+  for i, item in items:
     var qnt = 1
 
     if item.hasKey quantityCol:
       qnt = parseInt item[quantityCol]
 
     let name = item[nameCol]
-    var price = 0.0
+    let discount = item[discountCol]
+    var
+      price = 0.0
+      newPrice = 0.0
     try:
       price = parseFloat item[priceCol]
     except:
       discard
     if item.hasKey discountCol:
-      price = price.discount item[discountCol]
-    let subtotal = price * float qnt
-    printRow($qnt, fmt"{price:2.2f}", fmt"{subtotal:2.2f}", "\t" & name)
-    total += subtotal
-  styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
+      newPrice = price.discount item[discountCol]
+      if excel:
+        price = newPrice
+    let subtotalNum = newPrice * float qnt
+    let subtotal = if excel:
+                    fmt"=A{i + 2}*B{i + 2}"
+                  else:
+                    fmt"{subtotalNum:2.2f}"
+    printRow($qnt, fmt"{price:2.2f}", discount & "\t", subtotal & "\t", name)
+    total += subtotalNum
+  if excel:
+    echo fmt"\lTotal,=sum(C2:C{items.len + 1})"
+  else:
+    if colors:
+      styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
+    else:
+      echo "\lTotal: ", $total
 
 when isMainModule:
   import pkg/cligen
