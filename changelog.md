@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.7.1 (Sep 21, 2022)
+
+- Fixed error when no discount col exists
+- Fixed not counting when no discount col exists
+
+---
+
 ## Version 0.7.0 (Sep 20, 2022)
 
 - Added excel output

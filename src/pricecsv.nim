@@ -11,6 +11,11 @@ from std/algorithm import sort
 
 type Item = Table[string, string]
 
+proc tryGet[K, T](t: Table[K, T]; k: K): T =
+  try:
+    result = t[k]
+  except: discard
+
 proc parseInt(str: string; default = 1): int =
   ## Try parse the string as integer, if not succeed, return default
   result = default
@@ -41,13 +46,13 @@ func has(items: seq[Item]; item: Item; nameCol, priceCol, discountCol: string): 
   ## Check if the seq have a item with same name
   result = false
   for it in items:
-    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it[discountCol] == item[discountCol]:
+    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it.tryGet(discountCol) == item.tryGet(discountCol):
       return true
 
 proc addItem(items: var seq[Item]; item: Item; nameCol, quantityCol, priceCol, discountCol: string) =
   ## Increments the quantity of a item
   for it in items.mitems:
-    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it[discountCol] == item[discountCol]:
+    if it[nameCol] == item[nameCol] and it[priceCol] == item[priceCol] and it.tryGet(discountCol) == item.tryGet(discountCol):
       if it.hasKey quantityCol:
         it[quantityCol] = $(1 + parseInt it[quantityCol])
       else:
@@ -122,16 +127,17 @@ proc main(
       qnt = parseInt item[quantityCol]
 
     let name = item[nameCol]
-    let discount = item[discountCol]
     var
       price = 0.0
-      newPrice = 0.0
+      discount = "0"
     try:
       price = parseFloat item[priceCol]
     except:
       discard
+    var newPrice = price
     if item.hasKey discountCol:
-      newPrice = price.discount item[discountCol]
+      discount = item[discountCol]
+      newPrice = price.discount discount
       if excel:
         price = newPrice
     let subtotalNum = newPrice * float qnt
@@ -142,10 +148,10 @@ proc main(
     printRow($qnt, fmt"{price:2.2f}", discount & "\t", subtotal & "\t", name)
     total += subtotalNum
   if excel:
-    echo "\l" & fmt"Total,=sum(C2:C{items.len + 1})"
+    echo "\l" & fmt"Total,=sum(C2:C{items.len + 1}),,,"
   else:
     if colors:
-      styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", $total
+      styledEcho styleUnderscore, "\lTotal", resetStyle, ": ", fgGreen, $total
     else:
       echo "\lTotal: ", $total
 
